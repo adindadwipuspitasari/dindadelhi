@@ -3,11 +3,11 @@ import pandas as pd
 import numpy as np
 
 # Judul aplikasi
-st.title('Klasifikasi Popularitas Hotel')
+st.title('Klasifikasi Hotel')
 
 # Deskripsi aplikasi
 st.write("""
-    mengklasifikasikan popularitas hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
+    mengklasifikasikan hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
 """)
 
 # Fungsi untuk klasifikasi
