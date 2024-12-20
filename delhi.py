@@ -7,7 +7,7 @@ st.title('Klasifikasi Popularitas Hotel')
 
 # Deskripsi aplikasi
 st.write("""
-    mengklasifikasikan popularitas hotel berdasarkan ulasan 'Very Good' atau 'Excellent'.
+    mengklasifikasikan popularitas hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
 """)
 
 # Fungsi untuk klasifikasi
@@ -18,7 +18,7 @@ def classify_popularity(rating):
         return "Very Good"
 
 # Path ke file dataset bawaan
-file_path = 'delhi.xlsx'
+file_path =  'delhi.xlsx'
 
 try:
     # Membaca data dari dataset
@@ -69,7 +69,7 @@ try:
     # Form untuk input data baru
     with st.form("input_form"):
         title = st.text_input("Masukkan Nama Hotel:")
-        rating = st.number_input("Masukkan Rating (1-5):", min_value=1.0, max_value=5.0, step=0.1)
+        rating = st.number_input("Masukkan Rating :", min_value=3.0, max_value=5.0, step=0.1)
         submitted = st.form_submit_button("Tambahkan")
 
         if submitted:
