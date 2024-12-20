@@ -41,14 +41,14 @@ try:
         df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
 
     # Filter data hanya untuk 'Very Good' dan 'Excellent'
-    df = df[df['Rating Description'].isin(['Excellent', 'Very Good '])]
+    df = df[df['Rating Description'].isin(['Excellent', 'Very Good'])]
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
     # Menampilkan 10 hotel populer di kolom kiri
     with col1:
-        st.subheader("15 Hotel Very Good")
+        st.subheader("15 Hotel Excellent")
         populer = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
         populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         populer.index = populer.index + 1  # Set index mulai dari 1
@@ -56,7 +56,7 @@ try:
 
     # Menampilkan 10 hotel tidak populer di kolom kanan
     with col2:
-        st.subheader("15 Hotel Excellent")
+        st.subheader("15 Hotel Very Good")
         tidak_populer = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
         tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
