@@ -7,7 +7,7 @@ st.title('Klasifikasi Popularitas Hotel')
 
 # Deskripsi aplikasi
 st.write("""
-    mengklasifikasikan popularitas hotel berdasarkan ulasan 'Exellent' atau 'Very Good'.
+    mengklasifikasikan popularitas hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
 """)
 
 # Fungsi untuk klasifikasi
@@ -41,30 +41,26 @@ try:
         df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
 
     # Filter data hanya untuk 'Very Good' dan 'Excellent'
-    df = df[df['Rating Description'].isin(['Excellent', 'Very Good'])]
+    df = df[df['Rating Description'].isin(['Excellent', 'Very '])]
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
-    # Menampilkan 10 hotel di kolom kanan
-    
-     with col1:
-        st.subheader("Hotel dengan rating Exellent")
+    # Menampilkan 10 hotel populer di kolom kiri
+    with col1:
+        st.subheader("15 Hotel Very Good")
         populer = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
         populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         populer.index = populer.index + 1  # Set index mulai dari 1
         st.dataframe(populer)
-   
 
-    # Menampilkan 10 di kolom kiri
-
-     with col2:
-        st.subheader("Hotel dengan rating Very Good")
+    # Menampilkan 10 hotel tidak populer di kolom kanan
+    with col2:
+        st.subheader("15 Hotel Excellent")
         tidak_populer = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
         tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
         st.dataframe(tidak_populer)
-
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
