@@ -18,7 +18,7 @@ def classify_popularity(rating):
         return "Very Good"
 
 # Path ke file dataset bawaan
-file_path = 'Documents/SEMESTER 5/ds5/delhi.xlsx'
+file_path = 'delhi.xlsx'
 
 try:
     # Membaca data dari dataset
