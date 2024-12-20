@@ -11,14 +11,14 @@ st.write("""
 """)
 
 # Fungsi untuk klasifikasi
-def classify_popularity(rating):
+def classify_hotel(rating):
     if rating >= 4.3:
         return "Excellent"
     else:
         return "Very Good"
 
 # Path ke file dataset bawaan
-file_path =  'delhi.xlsx'
+file_path = 'delhi.xlsx'
 
 try:
     # Membaca data dari dataset
@@ -46,21 +46,21 @@ try:
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
-    # Menampilkan 10 hotel populer di kolom kiri
+    # Menampilkan 15 hotel dengan rating Excellent di kolom kiri
     with col1:
-        st.subheader("15 Hotel Excellent")
-        populer = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
-        populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
-        populer.index = populer.index + 1  # Set index mulai dari 1
-        st.dataframe(populer)
+        st.subheader("15 Hotel dengan Rating Excellent")
+        hotel_excellent = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
+        hotel_excellent = hotel_excellent.reset_index(drop=True)  # Reset index, drop kolom index lama
+        hotel_excellent.index = hotel_excellent.index + 1  # Set index mulai dari 1
+        st.dataframe(hotel_excellent)
 
-    # Menampilkan 10 hotel tidak populer di kolom kanan
+    # Menampilkan 15 hotel dengan rating Very Good di kolom kanan
     with col2:
-        st.subheader("15 Hotel Very Good")
-        tidak_populer = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
-        tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
-        tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
-        st.dataframe(tidak_populer)
+        st.subheader("15 Hotel dengan Rating Very Good")
+        hotel_very_good = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
+        hotel_very_good = hotel_very_good.reset_index(drop=True)  # Reset index, drop kolom index lama
+        hotel_very_good.index = hotel_very_good.index + 1  # Set index mulai dari 1
+        st.dataframe(hotel_very_good)
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
@@ -73,15 +73,14 @@ try:
         submitted = st.form_submit_button("Tambahkan")
 
         if submitted:
-                if title.strip() and 0.0 <= rating <= 5.0:
-                    popularitas = classify_popularity(rating)
+            if title.strip() and 0.0 <= rating <= 5.0:
+                htl = classify_hotel(rating)
 
-                    new_data = pd.DataFrame({"Hotel Name": [title], "Rating": [rating], "Rating Description": [popularitas]})
-                    st.session_state.data_baru = pd.concat([st.session_state.data_baru, new_data], ignore_index=True)
-                    st.success(f"Hotel '{title}' berhasil ditambahkan!")
-                else:
-                    st.error("Nama hotel tidak boleh kosong dan rating harus berada dalam rentang 1-5.")
-
+                new_data = pd.DataFrame({"Hotel Name": [title], "Rating": [rating], "Rating Description": [htl]})
+                st.session_state.data_baru = pd.concat([st.session_state.data_baru, new_data], ignore_index=True)
+                st.success(f"Hotel '{title}' berhasil ditambahkan!")
+            else:
+                st.error("Nama hotel tidak boleh kosong dan rating harus berada dalam rentang 1-5.")
 
     # Reset index dan mulai dari 1 untuk data baru
     st.session_state.data_baru = st.session_state.data_baru.reset_index(drop=True)
