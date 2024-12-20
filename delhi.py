@@ -1,86 +1,110 @@
+import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score
-import matplotlib.pyplot as plt
-import streamlit as st
 
-# 1. Membaca Data dari Excel
-file_path = 'delhi.xlsx'
+# Judul aplikasi
+st.title('Klasifikasi Popularitas Hotel')
 
-# Membaca data dari sheet pertama
-df = pd.read_excel(file_path)
+# Deskripsi aplikasi
+st.write("""
+    mengklasifikasikan popularitas hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
+""")
 
-# 2. Data Cleaning
-# Bersihkan kolom 'Distance to Landmark'
-def clean_distance(value):
-    if isinstance(value, str):  # Jika value adalah string
-        value = value.strip()  # Hapus spasi di awal/akhir
-        if 'km' in value:
-            return float(value.replace('km', '').strip())  # Ubah '8.0 km' menjadi 8.0
-        elif 'm' in value:
-            return float(value.replace('m', '').strip()) / 1000  # Ubah '500 m' menjadi 0.5
-    elif isinstance(value, (int, float)):  # Jika value sudah numerik
-        return value
-    return np.nan  # Jika format tidak dikenal, anggap sebagai NaN
+# Fungsi untuk klasifikasi
+def classify_popularity(rating):
+    if rating >= 4.3:
+        return "Excellent"
+    else:
+        return "Very Good"
 
-df['Distance to Landmark'] = df['Distance to Landmark'].apply(clean_distance)
+# Path ke file dataset bawaan
+file_path = 'Documents/SEMESTER 5/ds5/delhi.xlsx'
 
-# Periksa missing values dan isi dengan median jika ada
-df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
+try:
+    # Membaca data dari dataset
+    df = pd.read_excel(file_path)
 
-# Filter data hanya untuk 'Very Good' dan 'Excellent'
-df = df[df['Rating Description'].isin(['Very Good', 'Excellent'])]
+    # Bersihkan kolom 'Distance to Landmark' jika ada
+    def clean_distance(value):
+        if isinstance(value, str):  # Jika value adalah string
+            value = value.strip()
+            if 'km' in value:
+                return float(value.replace('km', '').strip())
+            elif 'm' in value:
+                return float(value.replace('m', '').strip()) / 1000
+        elif isinstance(value, (int, float)):  # Jika value sudah numerik
+            return value
+        return np.nan
 
-# 3. Fitur dan Target
-# Tentukan fitur (X) dan target (y)
-X = df[['Rating', 'Reviews', 'Star Rating', 'Distance to Landmark', 'Price']]
-y = df['Rating Description']
+    if 'Distance to Landmark' in df.columns:
+        df['Distance to Landmark'] = df['Distance to Landmark'].apply(clean_distance)
+        df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
 
-# 4. Split Data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    # Filter data hanya untuk 'Very Good' dan 'Excellent'
+    df = df[df['Rating Description'].isin(['Very Good', 'Excellent'])]
 
-# 5. Random Forest Classifier
-rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
-rf_model.fit(X_train, y_train)
+    # Membagi layout ke dua kolom
+    col1, col2 = st.columns(2)
 
-# 6. Melatih model
-rf_model.fit(X_train, y_train)
+    # Menampilkan 10 hotel populer di kolom kiri
+    with col1:
+        st.subheader("10 Hotel Very Good")
+        populer = df[df['Rating Description'] == "Excellent"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
+        populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
+        populer.index = populer.index + 1  # Set index mulai dari 1
+        st.dataframe(populer)
 
-# 7. Evaluasi model
-y_pred = rf_model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
+    # Menampilkan 10 hotel tidak populer di kolom kanan
+    with col2:
+        st.subheader("10 Hotel Excellent")
+        tidak_populer = df[df['Rating Description'] == "Very Good"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
+        tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
+        tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
+        st.dataframe(tidak_populer)
 
-# Streamlit display
-st.title('Hotel Rating Prediction')
-st.write(f'Test accuracy: {accuracy * 100:.2f}%')
+    # Inisialisasi DataFrame untuk data baru
+    if "data_baru" not in st.session_state:
+        st.session_state.data_baru = pd.DataFrame(columns=["Hotel Name", "Rating", "Rating Description"])
 
-# 8. Classification Report
-st.subheader('Classification Report:')
-st.text(classification_report(y_test, y_pred))
+    # Form untuk input data baru
+    with st.form("input_form"):
+        title = st.text_input("Masukkan Nama Hotel:")
+        rating = st.number_input("Masukkan Rating (1-5):", min_value=1.0, max_value=5.0, step=0.1)
+        submitted = st.form_submit_button("Tambahkan")
 
-# 9. Feature Importance (Visualisasi)
-importance = rf_model.feature_importances_
-features = X.columns
+        if submitted:
+                if title.strip() and 0.0 <= rating <= 5.0:
+                    popularitas = classify_popularity(rating)
 
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.barh(features, importance, color='skyblue')
-ax.set_xlabel('Feature Importance')
-ax.set_ylabel('Features')
-ax.set_title('Feature Importance in Random Forest')
-st.pyplot(fig)
+                    new_data = pd.DataFrame({"Hotel Name": [title], "Rating": [rating], "Rating Description": [popularitas]})
+                    st.session_state.data_baru = pd.concat([st.session_state.data_baru, new_data], ignore_index=True)
+                    st.success(f"Hotel '{title}' berhasil ditambahkan!")
+                else:
+                    st.error("Nama hotel tidak boleh kosong dan rating harus berada dalam rentang 1-5.")
 
-# 10. Confusion Matrix (Visualisasi)
-from sklearn.metrics import confusion_matrix
-import seaborn as sns
 
-conf_matrix = confusion_matrix(y_test, y_pred)
+    # Reset index dan mulai dari 1 untuk data baru
+    st.session_state.data_baru = st.session_state.data_baru.reset_index(drop=True)
+    st.session_state.data_baru.index = st.session_state.data_baru.index + 1
 
-# Plot confusion matrix
-fig2, ax2 = plt.subplots(figsize=(6, 5))
-sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Very Good', 'Excellent'], yticklabels=['Very Good', 'Excellent'])
-ax2.set_xlabel('Predicted')
-ax2.set_ylabel('True')
-ax2.set_title('Confusion Matrix')
-st.pyplot(fig2)
+    # Tampilkan data baru yang telah ditambahkan
+    st.write("Data Baru yang Ditambahkan:")
+    st.write(st.session_state.data_baru)
+
+    # Gabungkan data lama dan data baru untuk diunduh
+    gabungan_data = pd.concat([df[['Hotel Name', 'Rating', 'Rating Description']], st.session_state.data_baru], ignore_index=True)
+
+    # Reset index mulai dari 1
+    gabungan_data.index = gabungan_data.index + 1
+
+    # Tombol download data gabungan
+    csv = gabungan_data.to_csv(index=False)
+    st.download_button(
+        label="Download Data Gabungan",
+        data=csv,
+        file_name='hotel_popularity_combined.csv',
+        mime='text/csv'
+    )
+
+except Exception as e:
+    st.error(f"Terjadi kesalahan saat membaca file: {e}")
