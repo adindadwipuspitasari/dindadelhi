@@ -41,7 +41,7 @@ try:
         df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
 
     # Filter data hanya untuk 'Very Good' dan 'Excellent'
-    df = df[df['Rating Description'].isin(['Excellent', 'Very '])]
+    df = df[df['Rating Description'].isin(['Excellent', 'Very Good '])]
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
