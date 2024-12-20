@@ -7,7 +7,7 @@ st.title('Klasifikasi Popularitas Hotel')
 
 # Deskripsi aplikasi
 st.write("""
-    mengklasifikasikan popularitas hotel berdasarkan ulasan menjadi 'Very Good' atau 'Excellent'.
+    mengklasifikasikan popularitas hotel berdasarkan ulasan 'Very Good' atau 'Excellent'.
 """)
 
 # Fungsi untuk klasifikasi
