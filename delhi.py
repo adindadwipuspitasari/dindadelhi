@@ -47,6 +47,7 @@ try:
     col1, col2 = st.columns(2)
 
     # Menampilkan 10 hotel di kolom kanan
+    
      with col1:
         st.subheader("Hotel dengan rating Exellent")
         populer = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
