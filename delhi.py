@@ -47,20 +47,22 @@ try:
     col1, col2 = st.columns(2)
 
     # Menampilkan 10 hotel di kolom kanan
-    with col1:
-        st.subheader("Hotel dengan rating Very Good")
-        tidak_populer = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
-        tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
-        tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
-        st.dataframe(tidak_populer)
-
-    # Menampilkan 10 di kolom kiri
-    with col2:
+     with col2:
         st.subheader("Hotel dengan rating Exellent")
         populer = df[df['Rating Description'] == "Excellent"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
         populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         populer.index = populer.index + 1  # Set index mulai dari 1
         st.dataframe(populer)
+   
+
+    # Menampilkan 10 di kolom kiri
+
+     with col1:
+        st.subheader("Hotel dengan rating Very Good")
+        tidak_populer = df[df['Rating Description'] == "Very Good"].head(15)[['Hotel Name', 'Rating', 'Rating Description']]
+        tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
+        tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
+        st.dataframe(tidak_populer)
 
 
     # Inisialisasi DataFrame untuk data baru
