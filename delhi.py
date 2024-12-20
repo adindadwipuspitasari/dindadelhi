@@ -48,7 +48,7 @@ try:
 
     # Menampilkan 10 hotel di kolom kanan
     with col1:
-        st.subheader("10 Hotel Excellent")
+        st.subheader("10 Hotel Ver Good")
         tidak_populer = df[df['Rating Description'] == "Very Good"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
         tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
@@ -56,7 +56,7 @@ try:
 
     # Menampilkan 10 di kolom kiri
     with col2:
-        st.subheader("10 Hotel Very Good")
+        st.subheader("10 Hotel Exellent")
         populer = df[df['Rating Description'] == "Excellent"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
         populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
         populer.index = populer.index + 1  # Set index mulai dari 1
