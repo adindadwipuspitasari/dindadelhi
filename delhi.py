@@ -7,7 +7,7 @@ st.title('Klasifikasi Popularitas Hotel')
 
 # Deskripsi aplikasi
 st.write("""
-    Aplikasi ini mengklasifikasikan popularitas hotel berdasarkan ulasan 'Excellent' atau 'Very Good'.
+    mengklasifikasikan popularitas hotel berdasarkan ulasan 'Exellent' atau 'Very Good'.
 """)
 
 # Fungsi untuk klasifikasi
@@ -17,8 +17,8 @@ def classify_popularity(rating):
     else:
         return "Very Good"
 
-# Path ke file dataset
-file_path = 'delhi.xlsx'  # Sesuaikan dengan lokasi file Anda
+# Path ke file dataset bawaan
+file_path =  'delhi.xlsx'
 
 try:
     # Membaca data dari dataset
@@ -40,31 +40,60 @@ try:
         df['Distance to Landmark'] = df['Distance to Landmark'].apply(clean_distance)
         df['Distance to Landmark'].fillna(df['Distance to Landmark'].median(), inplace=True)
 
-    # Tambahkan kolom 'Rating Description' berdasarkan rating
-    if 'Rating' in df.columns:
-        df['Rating Description'] = df['Rating'].apply(classify_popularity)
+    # Filter data hanya untuk 'Very Good' dan 'Excellent'
+    df = df[df['Rating Description'].isin(['Very Good', 'Excellent'])]
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
-    # Menampilkan 10 hotel dengan rating 'Very Good'
+    # Menampilkan 10 hotel di kolom kanan
     with col1:
-        st.subheader("10 Hotel 'Very Good'")
-        very_good = df[df['Rating Description'] == "Very Good"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
-        very_good = very_good.reset_index(drop=True)
-        very_good.index = very_good.index + 1
-        st.dataframe(very_good)
+        st.subheader("10 Hotel Ver Good")
+        tidak_populer = df[df['Rating Description'] == "Very Good"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
+        tidak_populer = tidak_populer.reset_index(drop=True)  # Reset index, drop kolom index lama
+        tidak_populer.index = tidak_populer.index + 1  # Set index mulai dari 1
+        st.dataframe(tidak_populer)
 
-    # Menampilkan 10 hotel dengan rating 'Excellent'
+    # Menampilkan 10 di kolom kiri
     with col2:
-        st.subheader("10 Hotel 'Excellent'")
-        excellent = df[df['Rating Description'] == "Excellent"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
-        excellent = excellent.reset_index(drop=True)
-        excellent.index = excellent.index + 1
-        st.dataframe(excellent)
+        st.subheader("10 Hotel Exellent")
+        populer = df[df['Rating Description'] == "Excellent"].head(10)[['Hotel Name', 'Rating', 'Rating Description']]
+        populer = populer.reset_index(drop=True)  # Reset index, drop kolom index lama
+        populer.index = populer.index + 1  # Set index mulai dari 1
+        st.dataframe(populer)
 
-    # Gabungkan data lama untuk diunduh
-    gabungan_data = df[['Hotel Name', 'Rating', 'Rating Description']].reset_index(drop=True)
+
+    # Inisialisasi DataFrame untuk data baru
+    if "data_baru" not in st.session_state:
+        st.session_state.data_baru = pd.DataFrame(columns=["Hotel Name", "Rating", "Rating Description"])
+
+    # Form untuk input data baru
+    with st.form("input_form"):
+        title = st.text_input("Masukkan Nama Hotel:")
+        rating = st.number_input("Masukkan Rating :", min_value=3.0, max_value=5.0, step=0.1)
+        submitted = st.form_submit_button("Tambahkan")
+
+        if submitted:
+                if title.strip() and 0.0 <= rating <= 5.0:
+                    popularitas = classify_popularity(rating)
+
+                    new_data = pd.DataFrame({"Hotel Name": [title], "Rating": [rating], "Rating Description": [popularitas]})
+                    st.session_state.data_baru = pd.concat([st.session_state.data_baru, new_data], ignore_index=True)
+                    st.success(f"Hotel '{title}' berhasil ditambahkan!")
+                else:
+                    st.error("Nama hotel tidak boleh kosong dan rating harus berada dalam rentang 1-5.")
+
+
+    # Reset index dan mulai dari 1 untuk data baru
+    st.session_state.data_baru = st.session_state.data_baru.reset_index(drop=True)
+    st.session_state.data_baru.index = st.session_state.data_baru.index + 1
+
+    # Tampilkan data baru yang telah ditambahkan
+    st.write("Data Baru yang Ditambahkan:")
+    st.write(st.session_state.data_baru)
+
+    # Gabungkan data lama dan data baru untuk diunduh
+    gabungan_data = pd.concat([df[['Hotel Name', 'Rating', 'Rating Description']], st.session_state.data_baru], ignore_index=True)
 
     # Reset index mulai dari 1
     gabungan_data.index = gabungan_data.index + 1
